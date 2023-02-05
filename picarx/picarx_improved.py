@@ -1,31 +1,19 @@
-# HELLO FROM THE OTHER SIDE
-
-# from robot_hat import Pin, PWM, Servo, fileDB
-# from robot_hat import Grayscale_Module, Ultrasonic
-# from robot_hat.utils import reset_mcu
-
-#ADDED pg8(3)
+try:
+    from robot_hat import Pin, PWM, Servo, fileDB
+    from robot_hat import Grayscale_Module, Ultrasonic
+    from robot_hat.utils import reset_mcu
+except ImportError:
+    print ("sim functions need to be used")
+    from sim_robot_hat import Pin, PWM, Servo, Grayscale_Module, Ultrasonic, __reset_mcu__, reset_mcu
 import time
 import os
 import atexit
 import logging
 from logdecorator import log_on_start , log_on_end , log_on_error
-
-try :
-    from robot_hat import *
-    from robot_hat import reset_mcu
-    reset_mcu ()
-    time . sleep (0.01)
-except ImportError :
-    print (" This computer does not appear to be a PiCar - X \
-        system (robot_hat is not present). Shadowing hardware \
-        calls with substitute functions")
-from sim_robot_hat import *
-# This lets you define sim functions, which shadow PiCar 
-# hardware calls when doing testing on your desktop.
-
-#END pg8(3)
-
+#from logdecorator import log_on_start , log_on_end , log_on_error
+#logging_format = "%( asctime)s: %( message)s"
+#logging.basicConfig(format=logging_format , level=logging.INFO)
+#logging.getLogger ().setLevel(logging.DEBUG)
 reset_mcu()
 time.sleep(0.2)
 
@@ -34,15 +22,13 @@ User = os.popen('echo ${SUDO_USER:-$LOGNAME}').readline().strip()
 UserHome = os.popen('getent passwd %s | cut -d: -f 6'%User).readline().strip()
 # print(User)  # pi
 # print(UserHome) # /home/pi
-# config_file = '%s/.config/picar-x/picar-x.conf'%UserHome
-
+#config_file = '%s/.config/picar-x/picar-x.conf'%UserHome
 
 class Picarx(object):
-    z = 50
     PERIOD = 4095
     PRESCALER = 10
     TIMEOUT = 0.02
-
+    Rw = 50 # 50mm half of base width
     # servo_pins: direction_servo, camera_servo_1, camera_servo_2 
     # motor_pins: left_swicth, right_swicth, left_pwm, right_pwm
     # grayscale_pins: 3 adc channels
@@ -58,23 +44,17 @@ class Picarx(object):
                 ):
 
         # config_flie
-        # self.config_flie = fileDB(config, 774, User)
+        #self.config_flie = fileDB(config, 774, User)
         # servos init 
         self.camera_servo_pin1 = Servo(PWM(servo_pins[0]))
         self.camera_servo_pin2 = Servo(PWM(servo_pins[1]))   
         self.dir_servo_pin = Servo(PWM(servo_pins[2])) 
-        # self.dir_cal_value = int(self.config_flie.get("picarx_dir_servo", default_value=0))
-        # self.cam_cal_value_1 = int(self.config_flie.get("picarx_cam_servo1", default_value=0))
-        # self.cam_cal_value_2 = int(self.config_flie.get("picarx_cam_servo2", default_value=0))
-        
-        self.dir_cal_value = 0
-        self.cam_cal_value_1 = 0
-        self.cam_cal_value_2 = 0
-
+        self.dir_cal_value = 0 #int(self.config_flie.get("picarx_dir_servo", default_value=0))
+        self.cam_cal_value_1 = 0 #int(self.config_flie.get("picarx_cam_servo1", default_value=0))
+        self.cam_cal_value_2 = 0 #int(self.config_flie.get("picarx_cam_servo2", default_value=0))
         self.dir_servo_pin.angle(self.dir_cal_value)
         self.camera_servo_pin1.angle(self.cam_cal_value_1)
         self.camera_servo_pin2.angle(self.cam_cal_value_2)
-
         # motors init
         self.left_rear_dir_pin = Pin(motor_pins[0])
         self.right_rear_dir_pin = Pin(motor_pins[1])
@@ -98,14 +78,15 @@ class Picarx(object):
         tring, echo= ultrasonic_pins
         self.ultrasonic = Ultrasonic(Pin(tring), Pin(echo))
         
-    @log_on_end(logging.DEBUG , "motor speed {speed}")
+    @log_on_end(logging.DEBUG , "setting motor speed to {speed}")
     def set_motor_speed(self,motor,speed):
         # global cali_speed_value,cali_dir_value
+        print("call with", speed)
         motor -= 1
         if speed >= 0:
-            direction = 1 * self.cali_dir_value[motor]
+            direction = 1 #* self.cali_dir_value[motor]
         elif speed < 0:
-            direction = -1 * self.cali_dir_value[motor]
+            direction = -1 #* self.cali_dir_value[motor]
         speed = abs(speed)
         if speed != 0:
             speed = int(speed /2 ) + 50
@@ -138,10 +119,11 @@ class Picarx(object):
             self.cali_dir_value[motor] = 1
         elif value == -1:
             self.cali_dir_value[motor] = -1
-        
+        #self.config_flie.set("picarx_dir_motor", self.cali_dir_value)
 
     def dir_servo_angle_calibration(self,value):
         self.dir_cal_value = value
+        #self.config_flie.set("picarx_dir_servo", "%s"%value)
         self.dir_servo_pin.angle(value)
 
     def set_dir_servo_angle(self,value):
@@ -151,10 +133,12 @@ class Picarx(object):
 
     def camera_servo1_angle_calibration(self,value):
         self.cam_cal_value_1 = value
+        #self.config_flie.set("picarx_cam_servo1", "%s"%value)
         self.camera_servo_pin1.angle(value)
 
     def camera_servo2_angle_calibration(self,value):
         self.cam_cal_value_2 = value
+        #self.config_flie.set("picarx_cam_servo2", "%s"%value)
         self.camera_servo_pin2.angle(value)
 
     def set_camera_servo1_angle(self,value):
@@ -175,9 +159,11 @@ class Picarx(object):
             # if abs_current_angle >= 0:
             if abs_current_angle > 40:
                 abs_current_angle = 40
+            #power_scale = (100 - abs_current_angle) / 100.0 
+            # print("power_scale:",power_scale)
             if (current_angle / abs_current_angle) > 0:
                 self.set_motor_speed(1, -1*speed)
-                self.set_motor_speed(2, speed )
+                self.set_motor_speed(2, speed)
             else:
                 self.set_motor_speed(1, -1*speed)
                 self.set_motor_speed(2, speed )
@@ -191,9 +177,12 @@ class Picarx(object):
             abs_current_angle = abs(current_angle)
             # if abs_current_angle >= 0:
             if abs_current_angle > 40:
-                abs_current_angle = 40
+                abs_current_angle = 39
+            #power_scale = (100 - abs_current_angle) / 100.0
+            # abs of angle varies from 0 to 40 so scale is 0.6 to 1
+            #print("power_scale:",power_scale)
             if (current_angle / abs_current_angle) > 0:
-                self.set_motor_speed(1, 1*speed)
+                self.set_motor_speed(1, speed)
                 self.set_motor_speed(2, -speed) 
                 # print("current_speed: %s %s"%(1*speed * power_scale, -speed))
             else:
@@ -203,12 +192,12 @@ class Picarx(object):
         else:
             self.set_motor_speed(1, speed)
             self.set_motor_speed(2, -1*speed)                  
-    @log_on_start ( logging . DEBUG , " always forward started ")
+
     def always_forward(self, speed):
         current_angle = self.dir_current_angle
         abs_current_angle = abs(current_angle)
         if abs_current_angle > 40:  abs_current_angle = 39
-        factor = abs_current_angle * (3.14/180) * self.z *(10.5 - abs_current_angle/1.3)
+        factor = abs_current_angle * (3.14/180) * self.Rw *(10.5 - abs_current_angle/1.3)
         print(factor, speed)
         if current_angle >= 0:
             self.set_motor_speed(1, speed+factor)
@@ -229,8 +218,7 @@ class Picarx(object):
         else:
             self.set_motor_speed(2, speed-factor)
             self.set_motor_speed(1, -1*(speed+factor))
-
-
+            
     def stop(self):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
@@ -253,5 +241,6 @@ if __name__ == "__main__":
     atexit.register(px.stop)
     px.set_dir_servo_angle(2)
     px.always_forward(50)
+    #px.forward(50)
     time.sleep(1)
     px.stop()

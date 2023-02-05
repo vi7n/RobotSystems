@@ -1,19 +1,17 @@
 '''
     Line Following program for Picar-X:
-
     Pay attention to modify the reference value of the grayscale module 
     according to the practical usage scenarios.Use the following: 
         px.grayscale.reference = 1400 
     or
         px.set_grayscale_reference(1400)  
-
 '''
 from picarx import Picarx
 from time import sleep
 
 px = Picarx()
 # px = Picarx(grayscale_pins=['A0', 'A1', 'A2']) 
-px.set_grayscale_reference(1400)  
+px.set_grayscale_reference(0)  
 # px.grayscale.reference = 1400  
 last_state = None
 current_state = None
@@ -42,9 +40,10 @@ def outHandle():
 if __name__=='__main__':
     try:
         while True:
-            gm_val_list = 10*px.get_grayscale_data()
+            gm_val_list = px.get_grayscale_data()
             gm_state = px.get_line_status(gm_val_list)
-            print("gm_val_list: %s, %s"%(gm_val_list, gm_state))
+            diffs = [abs(gm_val_list[1] - gm_val_list[0]), 0, abs(gm_val_list[2] - gm_val_list[1])]
+            print("gm_val_list: %s, %s"%(diffs, gm_state))
 
             # if gm_state != "stop":
             #     last_state = gm_state
@@ -62,6 +61,3 @@ if __name__=='__main__':
             #     outHandle()
     finally:
         px.stop()
-
-
-                

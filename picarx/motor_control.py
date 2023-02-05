@@ -1,12 +1,9 @@
-import atexit
-
-
 try:
     from robot_hat import Pin, PWM, Servo
 except ImportError:
     print("using sim functions")
     from sim_robot_hat import Pin, PWM, Servo
-
+import atexit
 
 class Motors(object):
     

@@ -1,26 +1,16 @@
-import time
+# -*- coding: utf-8 -*-
 import logging
-
-# banaune list
-
-# Servo(PWM?)  --yeslai Basicclass chaiyo   d
-# Pin                                       d
-# PWM                                       d
-# Grayscale Module
-# Ultrasonic
+import time
 
 
-
-# NO CHANGES -- copied from robot_hat/basic.py
 class _Basic_class(object):
     _class_name = '_Basic_class'
     DEBUG_LEVELS = {'debug': logging.DEBUG,
-              'info': logging.INFO,
-              'warning': logging.WARNING,
-              'error': logging.ERROR,
-              'critical': logging.CRITICAL,
-              }
-
+                    'info': logging.INFO,
+                    'warning': logging.WARNING,
+                    'error': logging.ERROR,
+                    'critical': logging.CRITICAL,
+                    }
     DEBUG_NAMES = ['critical', 'error', 'warning', 'info', 'debug']
 
     def __init__(self):
@@ -31,10 +21,10 @@ class _Basic_class(object):
         self.formatter = logging.Formatter(form)
         self.ch.setFormatter(self.formatter)
         self.logger.addHandler(self.ch)
-        self._debug    = self.logger.debug
-        self._info     = self.logger.info
-        self._warning  = self.logger.warning
-        self._error    = self.logger.error
+        self._debug = self.logger.debug
+        self._info = self.logger.info
+        self._warning = self.logger.warning
+        self._error = self.logger.error
         self._critical = self.logger.critical
 
     @property
@@ -48,7 +38,8 @@ class _Basic_class(object):
         elif debug in self.DEBUG_NAMES:
             self._debug_level = debug
         else:
-            raise ValueError('Debug value must be 0(critical), 1(error), 2(warning), 3(info) or 4(debug), not \"{0}\".'.format(debug))  
+            raise ValueError(
+                'Debug value must be 0(critical), 1(error), 2(warning), 3(info) or 4(debug), not \"{0}\".'.format(debug))
         self.logger.setLevel(self.DEBUG_LEVELS[self._debug_level])
         self.ch.setLevel(self.DEBUG_LEVELS[self._debug_level])
         self._debug('Set logging level to [%s]' % self._debug_level)
@@ -65,8 +56,6 @@ class _Basic_class(object):
 
     def map(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
-
 
 
 
@@ -97,6 +86,7 @@ class I2C(_Basic_class):
 
     def _i2c_read_byte(self, addr):
         self._debug("_i2c_read_byte: [0x{:02X}]".format(addr))
+
     def _i2c_read_i2c_block_data(self, addr, reg, num):
         self._debug(
             "_i2c_read_i2c_block_data: [0x{:02X}] [0x{:02X}] [{}]".format(addr, reg, num))
@@ -209,7 +199,6 @@ class I2C(_Basic_class):
 
 
 
-
 class ADC(I2C):
     ADDR = 0x14
 
@@ -245,64 +234,8 @@ class ADC(I2C):
         return self.read*3.3/4095
 
 
-
-
-
-class Servo(_Basic_class):
-    MAX_PW = 2500
-    MIN_PW = 500
-    _freq = 50
-    def __init__(self, pwm):
-        super().__init__()
-
-        # self.pwm = pwm
-        # self.pwm.period(4095)
-        # prescaler = int(float(self.pwm.CLOCK) /self.pwm._freq/self.pwm.period())
-        # self.pwm.prescaler(prescaler)
-        # self.angle(90)
-
-    # angle ranges -90 to 90 degrees
-
-    def angle(self, angle):
-        pass
-        # if not (isinstance(angle, int) or isinstance(angle, float)):
-        #     raise ValueError("Angle value should be int or float value, not %s"%type(angle))
-        # if angle < -90:
-        #     angle = -90
-        # if angle > 90:
-        #     angle = 90
-        # High_level_time = self.map(angle, -90, 90, self.MIN_PW, self.MAX_PW)
-        # self._debug("High_level_time: %f" % High_level_time)
-        # pwr =  High_level_time / 20000
-        # self._debug("pulse width rate: %f" % pwr)
-        # value = int(pwr*self.pwm.period())
-        # self._debug("pulse width value: %d" % value)
-        # self.pwm.pulse_width(value)
-
-    # pwm_value ranges MIN_PW 500 to MAX_PW 2500 degrees
-
-    # def set_pwm(self,pwm_value):
-    #     if pwm_value > self.MAX_PW:
-    #         pwm_value =  self.MAX_PW 
-    #     if pwm_value < self.MIN_PW:
-    #         pwm_value = self.MIN_PW
-
-    #     self.pwm.pulse_width(pwm_value)
-
-
-
-
-
 class Pin(_Basic_class):
-    # OUT = GPIO.OUT
-    # IN = GPIO.IN
-    # IRQ_FALLING = GPIO.FALLING
-    # IRQ_RISING = GPIO.RISING
-    # IRQ_RISING_FALLING = GPIO.BOTH
-    # PULL_UP = GPIO.PUD_UP
-    # PULL_DOWN = GPIO.PUD_DOWN
     PULL_NONE = None
-
     _dict = {
         "BOARD_TYPE": 12,
     }
@@ -320,32 +253,30 @@ class Pin(_Basic_class):
         "D9":  6,
         "D10": 12,
         "D11": 13,
-        "D12": 19,
-        "D13": 16,
+        "P12": 19,
+        "P13": 16,
         "D14": 26,
         "D15": 20,
-        "D16": 21, 
+        "D16": 21,
         "SW":  19,
-        "USER": 19,        
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
         "BLEINT": 13,
         "BLERST": 20,
         "MCURST": 21,
-
     }
 
     _dict_2 = {
         "D0":  17,
-        "D1":   4, # Changed
+        "D1":   4, 
         "D2":  27,
         "D3":  22,
         "D4":  23,
         "D5":  24,
-        "D6":  25, # Removed
-        "D7":   4, # Removed
-        "D8":   5, # Removed
+        "D6":  25,  
+        "D7":   4,  
+        "D8":   5,  
         "D9":   6,
         "D10": 12,
         "D11": 13,
@@ -353,22 +284,18 @@ class Pin(_Basic_class):
         "D13": 16,
         "D14": 26,
         "D15": 20,
-        "D16": 21,     
-        "SW":  25, # Changed
-        "USER": 25,
+        "D16": 21,
+        "SW":  25, 
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
         "BLEINT": 13,
         "BLERST": 20,
-        "MCURST":  5, # Changed
+        "MCURST":  5, 
     }
 
     def __init__(self, *value):
         super().__init__()
-        # GPIO.setmode(GPIO.BCM)
-        # GPIO.setwarnings(False)
-
         self.check_board_type()
 
         if len(value) > 0:
@@ -387,19 +314,19 @@ class Pin(_Basic_class):
                 self._pin = self.dict()[pin]
             except Exception as e:
                 print(e)
-                self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+                self._error('Pin should be in %s, not %s' %
+                            (self._dict.keys(), pin))
         elif isinstance(pin, int):
             self._pin = pin
         else:
-            self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+            self._error('Pin should be in %s, not %s' %
+                        (self._dict.keys(), pin))
         self._value = 0
         self.init(mode, pull=setup)
         self._info("Pin init finished.")
-        
+
     def check_board_type(self):
         type_pin = self.dict()["BOARD_TYPE"]
-        # GPIO.setup(type_pin, GPIO.IN)
-        # if GPIO.input(type_pin) == 0:
         if True:
             self._dict = self._dict_1
         else:
@@ -408,11 +335,6 @@ class Pin(_Basic_class):
     def init(self, mode, pull=PULL_NONE):
         self._pull = pull
         self._mode = mode
-        # if mode != None:
-        #     if pull != None:
-        #         GPIO.setup(self._pin, mode, pull_up_down=pull)
-        #     else:
-        #         GPIO.setup(self._pin, mode)
 
     def dict(self, *_dict):
         if len(_dict) == 0:
@@ -429,18 +351,6 @@ class Pin(_Basic_class):
 
     def value(self, *value):
         return 0
-        # if len(value) == 0:
-        #     if self._mode in [None, self.OUT]:
-        #         self.mode(self.IN)
-        #     result = GPIO.input(self._pin)
-        #     self._debug("read pin %s: %s" % (self._pin, result))
-        #     return result
-        # else:
-        #     value = value[0]
-        #     if self._mode in [None, self.IN]:
-        #         self.mode(self.OUT)
-        #     GPIO.output(self._pin, value)
-        #     return value
 
     def on(self):
         return self.value(1)
@@ -459,21 +369,15 @@ class Pin(_Basic_class):
             return (self._mode, self._pull)
         else:
             self._mode = value[0]
-            # if len(value) == 1:
-            #     GPIO.setup(self._pin, self._mode)
-            # elif len(value) == 2:
-            #     self._pull = value[1]
-            #     GPIO.setup(self._pin, self._mode, self._pull)
 
     def pull(self, *value):
         return self._pull
 
     def irq(self, handler=None, trigger=None, bouncetime=200):
         self.mode(self.IN)
-        # GPIO.add_event_detect(self._pin, trigger, callback=handler, bouncetime=bouncetime)
 
     def name(self):
-        return "GPIO%s"%self._pin
+        return "GPIO%s" % self._pin
 
     def names(self):
         return [self.name, self._board_name]
@@ -487,9 +391,9 @@ class Pin(_Basic_class):
         GPIO24 = 24
         GPIO25 = 25
         GPIO26 = 26
-        GPIO4  = 4
-        GPIO5  = 5
-        GPIO6  = 6
+        GPIO4 = 4
+        GPIO5 = 5
+        GPIO6 = 6
         GPIO12 = 12
         GPIO13 = 13
         GPIO19 = 19
@@ -498,11 +402,12 @@ class Pin(_Basic_class):
         GPIO20 = 20
         GPIO21 = 21
 
-        # def __init__(self):
-        #     pass
 
-
-
+timer = [
+    {
+        "arr": 0
+    }
+] * 4
 
 
 class PWM():
@@ -520,114 +425,51 @@ class PWM():
         if isinstance(channel, str):
             if channel.startswith("P"):
                 channel = int(channel[1:])
-                if channel > 14:
-                    raise ValueError("channel must be in range of 0-14")
             else:
-                raise ValueError("PWM channel should be between [P0, P11], not {0}".format(channel))
-        
-        # try:
-        #     self.send(0x2C, self.ADDR)
-        #     self.send(0, self.ADDR)
-        #     self.send(0, self.ADDR)
-        # except IOError:
-        #     self.ADDR = 0x15
+                raise ValueError(
+                    "PWM channel should be between [P1, P14], not {0}".format(channel))
 
         self.debug = debug
-        # self._debug("PWM address: {:02X}".format(self.ADDR))
-        # self.channel = channel
-        # self.timer = int(channel/4)
-        # self.bus = smbus.SMBus(1)
-        # self._pulse_width = 0
-        # self._freq = 50
-        # self.freq(50)
 
     def i2c_write(self, reg, value):
         pass
 
-        # value_h = value >> 8
-        # value_l = value & 0xff
-        # self._debug("i2c write: [0x%02X, 0x%02X, 0x%02X, 0x%02X]"%(self.ADDR, reg, value_h, value_l))
-        # # print("i2c write: [0x%02X, 0x%02X, 0x%02X] to 0x%02X"%(reg, value_h, value_l, self.ADDR))
-        # self.send([reg, value_h, value_l], self.ADDR)
-
     def freq(self, *freq):
         pass
-
-        # if len(freq) == 0:
-        #     return self._freq
-        # else:
-        #     self._freq = int(freq[0])
-        #     # [prescaler,arr] list
-        #     result_ap = []
-        #     # accuracy list
-        #     result_acy = []
-        #     # middle value for equal arr prescaler
-        #     st = int(math.sqrt(self.CLOCK/self._freq))
-        #     # get -5 value as start
-        #     st -= 5
-        #     # prevent negetive value
-        #     if st <= 0:
-        #         st = 1
-        #     for psc in range(st,st+10):
-        #         arr = int(self.CLOCK/self._freq/psc)
-        #         result_ap.append([psc, arr])
-        #         result_acy.append(abs(self._freq-self.CLOCK/psc/arr))
-        #     i = result_acy.index(min(result_acy))
-        #     psc = result_ap[i][0]
-        #     arr = result_ap[i][1]
-        #     self._debug("prescaler: %s, period: %s"%(psc, arr))
-        #     self.prescaler(psc)
-        #     self.period(arr)
 
     def prescaler(self, *prescaler):
         pass
 
-        # if len(prescaler) == 0:
-        #     return self._prescaler
-        # else:
-        #     self._prescaler = int(prescaler[0]) - 1
-        #     reg = self.REG_PSC + self.timer
-        #     self._debug("Set prescaler to: %s"%self._prescaler)
-        #     self.i2c_write(reg, self._prescaler)
-
     def period(self, *arr):
         pass
-
-        # global timer
-        # if len(arr) == 0:
-        #     return timer[self.timer]["arr"]
-        # else:
-        #     timer[self.timer]["arr"] = int(arr[0]) - 1
-        #     reg = self.REG_ARR + self.timer
-        #     self._debug("Set arr to: %s"%timer[self.timer]["arr"])
-        #     self.i2c_write(reg, timer[self.timer]["arr"])
 
     def pulse_width(self, *pulse_width):
         pass
 
-        # if len(pulse_width) == 0:
-        #     return self._pulse_width
-        # else:
-        #     self._pulse_width = int(pulse_width[0])
-        #     reg = self.REG_CHN + self.channel
-        #     self.i2c_write(reg, self._pulse_width)
-
     def pulse_width_percent(self, *pulse_width_percent):
         pass
 
-        # global timer
-        # if len(pulse_width_percent) == 0:
-        #     return self._pulse_width_percent
-        # else:
-        #     self._pulse_width_percent = pulse_width_percent[0]
-        #     temp = self._pulse_width_percent / 100.0
-        #     # print(temp)
-        #     pulse_width = temp * timer[self.timer]["arr"]
-        #     self.pulse_width(pulse_width)
+class Ultrasonic:
+    """
+    stub for ezblocks/ultrasonic
+    """
+    def __init__(self, pin1: Pin, pin2: Pin) -> None:
+        pass
 
+    def read(self):
+        return 0
 
+class Servo(_Basic_class):
+    MAX_PW = 2500
+    MIN_PW = 500
+    _freq = 50
 
-   
+    def __init__(self, pwm):
+        super().__init__()
+
+    # angle ranges -90 to 90 degrees
+    def angle(self, angle):
+        pass
 
 class Grayscale_Module(object):
     def __init__(self, pin0, pin1, pin2, reference=1000):
@@ -650,60 +492,60 @@ class Grayscale_Module(object):
 
 class Ultrasonic():
     def __init__(self, trig, echo, timeout=0.02):
-        pass
-
-        # self.trig = trig
-        # self.echo = echo
-        # self.timeout = timeout
+        self.trig = trig
+        self.echo = echo
+        self.timeout = timeout
 
     def _read(self):
-        return -1
-
-        # self.trig.low()
-        # time.sleep(0.01)
-        # self.trig.high()
-        # time.sleep(0.00001)
-        # self.trig.low()
-        # pulse_end = 0
-        # pulse_start = 0
-        # timeout_start = time.time()
-        # while self.echo.value()==0:
-        #     pulse_start = time.time()
-        #     if pulse_start - timeout_start > self.timeout:
-        #         return -1
-        # while self.echo.value()==1:
-        #     pulse_end = time.time()
-        #     if pulse_end - timeout_start > self.timeout:
-        #         return -1
-        # during = pulse_end - pulse_start
-        # cm = round(during * 340 / 2 * 100, 2)
-        # return cm
+        self.trig.low()
+        time.sleep(0.01)
+        self.trig.high()
+        time.sleep(0.00001)
+        self.trig.low()
+        pulse_end = 0
+        pulse_start = 0
+        timeout_start = time.time()
+        while self.echo.value()==0:
+            pulse_start = time.time()
+            if pulse_start - timeout_start > self.timeout:
+                return -1
+        while self.echo.value()==1:
+            pulse_end = time.time()
+            if pulse_end - timeout_start > self.timeout:
+                return -1
+        during = pulse_end - pulse_start
+        cm = round(during * 340 / 2 * 100, 2)
+        return cm
 
     def read(self, times=10):
         return -1
 
-#-------------------==============================------------------
 
-
-
-
-
-def test():
-    pass
-    # from robot_hat import PWM
-    # print("Test")
-    # p = PWM("P0")
-    # s0 = Servo(p)
-    # s0.debug = "debug"
-    # s0.angle(90)
-
-def test2():
+def test(): #pwm
     pass
 
-    # p = PWM("P0")
-    # while True:
-    #     p.pulse_width_percent(50)
 
-if __name__ == "__main__":
+def test2p(): #pwm
+    pass
+
+def __reset_mcu__():
+    print ("resetting mcu.")
+
+def reset_mcu():
+    print ("resetting mcu.")
+
+
+def testi2c(): #i2c
+    import time
+    adc = ADC(0)
+    while True:
+        print(adc.read())
+        time.sleep(1)
+
+
+if __name__ == '__main__':
     test()
+    testi2c()
     test2()
+    reset_mcu()
+    __reset_mcu__()
