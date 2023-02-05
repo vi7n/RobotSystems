@@ -1,6 +1,7 @@
 from picarx import Picarx
 from greyscale import Sensor, Interpreter, Controller
 from time import sleep
+
 if __name__ == '__main__':
 
     print("\ntesting grayscale sensor.")

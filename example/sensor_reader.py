@@ -9,6 +9,7 @@
 from picarx import Picarx
 from time import sleep
 
+
 px = Picarx()
 # px = Picarx(grayscale_pins=['A0', 'A1', 'A2']) 
 px.set_grayscale_reference(0)  

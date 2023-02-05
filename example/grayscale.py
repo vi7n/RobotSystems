@@ -5,6 +5,7 @@ from typing import List
 from picarx import Picarx
 from time import sleep
 
+
 SensorOutput = List[int]
 PERIOD = 4095
 PRESCALER = 10
